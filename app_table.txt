@@ -1,0 +1,27 @@
+account app:
+	user db
+
+
+journal app:
+	journal db
+
+
+paper app:
+	paper db
+
+
+review app:
+	review db
+
+
+moderation app:
+	moderation db
+
+
+contact app:
+	contact db
+
+
+info:
+	FAQ db
+	requirement db
