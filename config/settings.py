@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'paper',
     'review',
 
+    'rest_framework',
     'drf_yasg',
     'rest_framework_simplejwt',
 ]
@@ -154,3 +155,13 @@ SWAGGER_SETTINGS = {
         }
     },
 }
+
+
+# sznz uuty gfpe tsxa
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'varenoma@gmail.com'
+EMAIL_HOST_PASSWORD = 'sznzuutygfpetsxa'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'varenoma@gmail.com'
