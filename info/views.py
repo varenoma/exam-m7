@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from .models import FAQ, Requirement
+from .serializers import FAQCreateSerializer, RequirementCreateSerializer
+
+
+class FAQCreateView(generics.ListAPIView):
+    queryset = FAQ.objects.all()
+    serializer_class = FAQCreateSerializer
+
+
+class RequirementCreateView(generics.ListAPIView):
+    queryset = Requirement.objects.all()
+    serializer_class = RequirementCreateSerializer
