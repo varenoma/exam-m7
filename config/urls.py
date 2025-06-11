@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/infos/', include('info.urls')),
     path('api/journal/', include('journal.urls')),
     path('api/paper/', include('paper.urls')),
+    path('api/review/', include('review.urls')),
 
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0),
          name='schema-json'),

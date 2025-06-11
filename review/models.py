@@ -3,13 +3,16 @@ from django.db import models
 
 from paper.models import Paper
 from journal.models import Journal
+from account.models import User
 
 # Create your models here.
 
 
 class Review(models.Model):
+    author = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='review_user', blank=True)
     paper = models.ForeignKey(
-        Paper, on_delete=models.SET_NULL, null=True, related_name='review_moderations', blank=True)
+        Paper, on_delete=models.SET_NULL, null=True, related_name='review_paper', blank=True)
     journal = models.ForeignKey(
         Journal, on_delete=models.SET_NULL, null=True, related_name='review_journal', blank=True)
     star = models.PositiveIntegerField(default=0)
