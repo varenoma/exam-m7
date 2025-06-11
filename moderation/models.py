@@ -14,16 +14,16 @@ class Moderation(models.Model):
     description = models.TextField()
     star = models.PositiveIntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(5)])
-    reviewer = models.ForeignKey(
+    moder = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviewer_reviews'
+        related_name='reviewer_moder'
     )
     paper = models.ForeignKey(
         Paper, on_delete=models.SET_NULL, null=True, blank=True)
     journal = models.ForeignKey(
         Journal, on_delete=models.SET_NULL, null=True, blank=True)
-
+    is_verified = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
@@ -33,7 +33,7 @@ class Moderation(models.Model):
                 "Paper, Journal yoki Moderationdan birini tanlashingiz shart")
 
     def __str__(self):
-        return self.reviewer.username if self.reviewer else "Reviewer o'chirilgan"
+        return str(self.star)
 
     class Meta:
         db_table = 'moderation'
