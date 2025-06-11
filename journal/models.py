@@ -23,3 +23,9 @@ class Journal(models.Model):
 
     class Meta:
         db_table = 'journal'
+
+
+class JournalViewCount(models.Model):
+    journal = models.ForeignKey(Journal, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)

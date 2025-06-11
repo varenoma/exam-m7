@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from account.models import User
 from config import settings
-from .serializers import RegisterSerializer, PasswordResetSerializer, PasswordResetConfirmSeralizer, PasswordChangeSerializer
+from .serializers import RegisterSerializer, PasswordResetSerializer, PasswordResetConfirmSeralizer, PasswordChangeSerializer, ProfileViewSerializer, UserUpdateProfileSerializer
 
 
 class RegisterView(APIView):
@@ -95,4 +95,27 @@ class PasswordChangeView(APIView):
             user.save()
             return Response({'message': "Parol muvoffaqiyatli o'rgartirildi"}, status=status.HTTP_200_OK)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = ProfileViewSerializer(user)
+        return Response(serializer.data)
+
+
+class UserUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=UserUpdateProfileSerializer)
+    def put(self, request):
+        user = request.user
+        serializer = UserUpdateProfileSerializer(
+            user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
