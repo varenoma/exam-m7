@@ -19,6 +19,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://exam-m7.onrender.com',
+]
+
 
 # Application definition
 
