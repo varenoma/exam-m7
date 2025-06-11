@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -11,7 +11,16 @@ from django.db.models import Q
 from .models import Paper, PaperViewCount
 from .serializers import PaperListSerializer, PaperCreateSerializer, PaperDetailSerializer
 from .permissions import IsOwnerOrReadOnly
-from .filters import PaperFilter
+
+
+def update_view_count(paper, user):
+    if user.is_authenticated:
+        already_viewed = PaperViewCount.objects.filter(
+            paper=paper, user=user).exists()
+        if not already_viewed:
+            paper.view_count += 1
+            paper.save(update_fields=['view_count'])
+            PaperViewCount.objects.create(paper=paper, user=user)
 
 
 class PaperViewSet(viewsets.ModelViewSet):
@@ -33,6 +42,9 @@ class PaperViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated:
+            return Paper.objects.none()
+
         queryset = Paper.objects.filter(author=user)
 
         is_verified = self.request.query_params.get('is_verified')
@@ -58,14 +70,7 @@ class PaperViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         paper = get_object_or_404(Paper, pk=pk)
-        user = request.user
-        korilgan = PaperViewCount.objects.filter(
-            paper=paper, user=user).exists()
-
-        if not korilgan:
-            paper.view_count += 1
-            paper.save(update_fields=['view_count'])
-            PaperViewCount.objects.create(paper=paper, user=user)
+        update_view_count(paper, request.user)
 
         serializer = PaperDetailSerializer(paper)
         return Response(serializer.data)
@@ -77,19 +82,23 @@ class AllPaperListAndDetail(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = Paper.objects.filter(is_verified=True)
-        name = self.request.query_params.get('name', None)
-        author = self.request.query_params.get('author', None)
-        keyword = self.request.query_params.get('keyword', None)
-        reference = self.request.query_params.get('reference', None)
 
-        if name or author or keyword or reference:
-            queryset = queryset.filter(
-                Q(name__icontains=name) if name else Q(),
-                Q(author__username__icontains=author) if author else Q(),
-                Q(keyword__icontains=keyword) if keyword else Q(),
-                Q(reference__icontains=reference) if reference else Q()
-            )
+        name = self.request.query_params.get('name')
+        author = self.request.query_params.get('author')
+        keyword = self.request.query_params.get('keyword')
+        reference = self.request.query_params.get('reference')
 
+        filters = Q()
+        if name:
+            filters &= Q(name__icontains=name)
+        if author:
+            filters &= Q(author__username__icontains=author)
+        if keyword:
+            filters &= Q(keyword__icontains=keyword)
+        if reference:
+            filters &= Q(reference__icontains=reference)
+
+        queryset = queryset.filter(filters)
         return queryset
 
     def get_serializer_class(self):
@@ -114,17 +123,7 @@ class AllPaperListAndDetail(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk=None):
         paper = get_object_or_404(Paper, pk=pk, is_verified=True)
-        user = request.user
-
-        if user.is_authenticated:
-            korilgan = PaperViewCount.objects.filter(
-                paper=paper, user=user
-            ).exists()
-
-            if not korilgan:
-                paper.view_count += 1
-                paper.save(update_fields=['view_count'])
-                PaperViewCount.objects.create(paper=paper, user=user)
+        update_view_count(paper, request.user)
 
         serializer = PaperDetailSerializer(paper)
         return Response(serializer.data)

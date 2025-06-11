@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'moderation',
     'paper',
     'review',
+    'pages',
 
     'rest_framework',
     'drf_yasg',

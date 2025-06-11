@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -29,6 +29,9 @@ class JournalViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Journal.objects.none()
+
         user = self.request.user
         queryset = Journal.objects.filter(author=user)
 
@@ -70,7 +73,7 @@ class JournalViewSet(viewsets.ModelViewSet):
 
 class AllJournalListAndDetail(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
-    serializer_class = [JournalListSerializer]
+    serializer_class = JournalListSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
