@@ -1,11 +1,15 @@
 # account.models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import EmailValidator
 
 # Create your models here.
 
+# admin uchun username: admin, password: admin
+
 
 class User(AbstractUser):
+    email = models.EmailField(unique=True, validators=[EmailValidator()])
     birth_date = models.DateField(blank=True, null=True)
     organization = models.CharField(max_length=200, blank=True)
     scientific_degree = models.CharField(max_length=200, blank=True)
